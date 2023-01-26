@@ -27,5 +27,19 @@ def get_pokemon_attack(name):
     data = response.json()
     return jsonify(data["stats"][4]["base_stat"])
 
+@app.route('/pokemon/<string:name>/sprite', methods=['GET'])
+def get_pokemon_sprite(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    return jsonify(data["sprites"]["front_default"])
+
+@app.route('/pokemon/<string:name>/sprite/shiny', methods=['GET'])
+def get_pokemon_shiny(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    return jsonify(data["sprites"]["front_shiny"])
+
 if __name__ == '__main__':
     app.run(debug=True)
