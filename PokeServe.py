@@ -172,5 +172,78 @@ def get_version_languages(version_name):
     return jsonify({"languages": languages})
 #MISC DATA END
 
+#ATTEMPTED DAMAGE CALC
+@app.route('/damage/<string:attacker_name>/<string:move_name>/<string:defender_name>/<int:hp_ev>/<int:attack_ev>/<int:defense_ev>/<int:special_attack_ev>/<int:special_defense_ev>/<int:speed_ev>/<int:hp_iv>/<int:attack_iv>/<int:defense_iv>/<int:special_attack_iv>/<int:special_defense_iv>/<int:speed_iv>', methods=['GET'])
+def calculate_damage(attacker_name, move_name, defender_name, hp_ev, attack_ev, defense_ev, special_attack_ev, special_defense_ev, speed_ev, hp_iv, attack_iv, defense_iv, special_attack_iv, special_defense_iv, speed_iv):
+    # Get attacker's data
+    url = f'https://pokeapi.co/api/v2/pokemon/{attacker_name}'
+    response = requests.get(url)
+    attacker_data = response.json()
+
+    # Get attacker's move data
+    move_url = None
+    for move in attacker_data['moves']:
+        if move['move']['name'] == move_name:
+            move_url = move['move']['url']
+            break
+    if not move_url:
+        return jsonify({"error": f"{move_name} is not a valid move for {attacker_name}"})
+    move_response = requests.get(move_url)
+    move_data = move_response.json()
+
+    # Get defender's data
+    url = f'https://pokeapi.co/api/v2/pokemon/{defender_name}'
+    response = requests.get(url)
+    defender_data = response.json()
+
+    # Get attacker's level, EVs, IVs, and moves
+    level = 100 # Assume level 100 for attacker
+    evs = {'hp': hp_ev, 'attack': attack_ev, 'defense': defense_ev, 'special-attack': special_attack_ev, 'special-defense': special_defense_ev, 'speed': speed_ev}
+    ivs = {'hp': hp_iv, 'attack': attack_iv, 'defense': defense_iv, 'special-attack': special_attack_iv, 'special-defense': special_defense_iv, 'speed': speed_iv}
+    # Calculate base stats
+    base_stats = {stat['stat']['name']: stat['base_stat'] for stat in attacker_data['stats']}
+    hp = floor((2 * base_stats['hp'] + ivs['hp'] + floor(evs['hp']/4)) * level / 100) + level + 10
+    attack = floor(((2 * base_stats['attack'] + ivs['attack'] + floor(evs['attack']/4)) * level / 100) + 5)
+    defense = floor(((2 * base_stats['defense'] + ivs['defense'] + floor(evs['defense']/4)) * level / 100) + 5)
+    special_attack = floor(((2 * base_stats['special-attack'] + ivs['special-attack'] + floor(evs['special-attack']/4)) * level / 100) + 5)
+    special_defense = floor(((2 * base_stats['special-defense'] + ivs['special-defense'] + floor(evs['special-defense']/4)) * level / 100) + 5)
+    speed = floor(((2 * base_stats['speed'] + ivs['speed'] + floor(evs['speed']/4)) * level / 100) + 5)
+    
+    # Get defender's stats
+    defender_stats = {stat['stat']['name']: stat['base_stat'] for stat in defender_data['stats']}
+
+    # Get move's type, power, and category
+    move_type = move_data['type']['name']
+    move_power = move_data['power']
+    move_category = move_data['damage_class']['name']
+
+    # Get defender's types
+    defender_types = [t['type']['name'] for t in defender_data['types']]
+
+    # Calculate damage
+    if move_category == 'physical':
+        attack_stat = attack
+        defense_stat = defense
+    elif move_category == 'special':
+        attack_stat = special_attack
+        defense_stat = special_defense
+    else:
+        return jsonify({"error": "Invalid})
+
+    # Get type effectiveness
+    effectiveness = 1
+    for t in defender_types:
+        effectiveness *= types[move_type]['damage_relations'][t]
+    if effectiveness == 0:
+        return jsonify({"error": "Move has no effect on defender"})
+
+    # Calculate damage
+    damage = floor((((2 * level) / 5 + 2) * move_power * attack_stat / defense_stat) / 50) + 2
+    damage *= effectiveness
+
+    # Return damage
+    return jsonify({"damage": damage})
+    #DAMAGE CALC END
+
 if __name__ == '__main__':
     app.run(debug=True)
