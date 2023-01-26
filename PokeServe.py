@@ -27,19 +27,38 @@ def get_pokemon_attack(name):
     data = response.json()
     return jsonify(data["stats"][4]["base_stat"])
 
-@app.route('/pokemon/<string:name>/sprite', methods=['GET'])
-def get_pokemon_sprite(name):
+#SPRITE CODE START
+def get_pokemon_data(name, shiny=False, back=False):
     url = f'https://pokeapi.co/api/v2/pokemon/{name}'
     response = requests.get(url)
     data = response.json()
-    return jsonify(data["sprites"]["front_default"])
+    if back:
+        if shiny:
+            return data["sprites"]["back_shiny"]
+        else:
+            return data["sprites"]["back_default"]
+    else:
+        if shiny:
+            return data["sprites"]["front_shiny"]
+        else:
+            return data["sprites"]["front_default"]
+
+@app.route('/pokemon/<string:name>/sprite', methods=['GET'])
+def get_pokemon_sprite(name):
+    return jsonify(get_pokemon_data(name, shiny=False, back=False))
 
 @app.route('/pokemon/<string:name>/sprite/shiny', methods=['GET'])
 def get_pokemon_shiny(name):
-    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
-    response = requests.get(url)
-    data = response.json()
-    return jsonify(data["sprites"]["front_shiny"])
+    return jsonify(get_pokemon_data(name, shiny=True, back=False))
+
+@app.route('/pokemon/<string:name>/sprite/back', methods=['GET'])
+def get_pokemon_back(name):
+    return jsonify(get_pokemon_data(name, shiny=False, back=True))
+
+@app.route('/pokemon/<string:name>/sprite/shiny/back', methods=['GET'])
+def get_pokemon_shiny_back(name):
+    return jsonify(get_pokemon_data(name, shiny=True, back=True))
+#SPRITE CODE END
 
 if __name__ == '__main__':
     app.run(debug=True)
