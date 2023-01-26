@@ -13,19 +13,50 @@ def get_pokemon(name):
     response = requests.get(url)
     return jsonify(response.json())
 
-@app.route('/pokemon/<string:name>/hp', methods=['GET'])
+#BASE STAT START
+@app.route('/pokemon/<string:name>/stats/hp', methods=['GET'])
 def get_pokemon_hp(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    return jsonify(data["stats"][0]["base_stat"])
+
+@app.route('/pokemon/<string:name>/stats/attack', methods=['GET'])
+def get_pokemon_attack(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    return jsonify(data["stats"][1]["base_stat"])
+
+@app.route('/pokemon/<string:name>/stats/defense', methods=['GET'])
+def get_pokemon_defense(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    return jsonify(data["stats"][2]["base_stat"])
+
+@app.route('/pokemon/<string:name>/stats/special-attack', methods=['GET'])
+def get_pokemon_special_attack(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    return jsonify(data["stats"][3]["base_stat"])
+
+@app.route('/pokemon/<string:name>/stats/speed', methods=['GET'])
+def get_pokemon_speed(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    return jsonify(data["stats"][4]["base_stat"])
+
+@app.route('/pokemon/<string:name>/stats/special-defense', methods=['GET'])
+def get_pokemon_special_defense(name):
     url = f'https://pokeapi.co/api/v2/pokemon/{name}'
     response = requests.get(url)
     data = response.json()
     return jsonify(data["stats"][5]["base_stat"])
 
-@app.route('/pokemon/<string:name>/attack', methods=['GET'])
-def get_pokemon_attack(name):
-    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
-    response = requests.get(url)
-    data = response.json()
-    return jsonify(data["stats"][4]["base_stat"])
+#BASE STAT END
 
 #SPRITE CODE START
 def get_pokemon_data(name, shiny=False, back=False):
