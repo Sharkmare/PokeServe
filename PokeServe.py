@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 import requests
 import requests_cache
+from math import floor
 
 app = Flask(__name__)
 
