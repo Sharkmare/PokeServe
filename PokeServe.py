@@ -58,6 +58,20 @@ def get_pokemon_special_defense(name):
 
 #BASE STAT END
 
+#COMPOUND STAT FUNCTION ADDITION START
+@app.route('/pokemon/<string:name>/stats/all', methods=['GET'])
+def get_pokemon_all_stats(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    stats = {}
+    for i in range(len(data["stats"])):
+        stat_name = data["stats"][i]["stat"]["name"]
+        stat_value = data["stats"][i]["base_stat"]
+        stats[stat_name] = stat_value
+    return jsonify(stats)
+#COMPOUND STAT FUNCTION END
+
 #SPRITE CODE START
 def get_pokemon_data(name, shiny=False, back=False):
     url = f'https://pokeapi.co/api/v2/pokemon/{name}'
