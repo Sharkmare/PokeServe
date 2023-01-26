@@ -135,5 +135,20 @@ def check_valid_move(pokemon_name, move_name):
     return jsonify({"valid": False})
 #MOVE CODE END
 
+#POKEDEX START
+@app.route('/pokedex-entry/<string:pokemon_name>/<string:version>/<string:language>', methods=['GET'])
+def get_pokedex_entry(pokemon_name, version, language):
+    url = f'https://pokeapi.co/api/v2/pokemon/{pokemon_name}'
+    response = requests.get(url)
+    data = response.json()
+    species_url = data["species"]["url"]
+    response = requests.get(species_url)
+    species_data = response.json()
+    for entry in species_data["flavor_text_entries"]:
+        if entry["language"]["name"] == language and entry["version"]["name"] == version:
+            return jsonify({"pokedex_entry": entry["flavor_text"]})
+    return jsonify({"error": "Pokedex entry not found"})
+#POKEDEX END
+
 if __name__ == '__main__':
     app.run(debug=True)
