@@ -13,5 +13,19 @@ def get_pokemon(name):
     response = requests.get(url)
     return jsonify(response.json())
 
+@app.route('/pokemon/<string:name>/hp', methods=['GET'])
+def get_pokemon_hp(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    return jsonify(data["stats"][5]["base_stat"])
+
+@app.route('/pokemon/<string:name>/attack', methods=['GET'])
+def get_pokemon_attack(name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{name}'
+    response = requests.get(url)
+    data = response.json()
+    return jsonify(data["stats"][4]["base_stat"])
+
 if __name__ == '__main__':
     app.run(debug=True)
