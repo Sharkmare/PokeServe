@@ -185,9 +185,9 @@ def calculate_damage(attacker_name, move_name, defender_name, hp_ev, attack_ev, 
         type_url = type_data['url']
         response = requests.get(type_url)
         type_info = response.json()
-        types[type_info['name']] = type_info
-    ###################FIX THE ABOVE######################
-    
+        types[type_info['name'].lower()] = type_info
+
+
     # Get attacker's data
     url = f'https://pokeapi.co/api/v2/pokemon/{attacker_name}'
     response = requests.get(url)
@@ -246,9 +246,11 @@ def calculate_damage(attacker_name, move_name, defender_name, hp_ev, attack_ev, 
     # Get type effectiveness
     effectiveness = 1
     for t in defender_types:
-        effectiveness *= types[move_type]['damage_relations'][t]
-    if effectiveness == 0:
-        return jsonify({"error": "Move has no effect on defender"})
+        for relation in types[move_type]['damage_relations']:
+            if relation == t:
+                effectiveness *= types[move_type]['damage_relations'][relation]['double_damage_from'] or 1
+                effectiveness *= 2 if types[move_type]['damage_relations'][relation]['half_damage_from'] else 1
+                effectiveness *= 0.5 if types[move_type]['damage_relations'][relation]['no_damage_from'] else 1
 
     # Calculate damage
     damage = floor((((2 * level) / 5 + 2) * move_power * attack_stat / defense_stat) / 50) + 2
