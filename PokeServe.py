@@ -150,5 +150,27 @@ def get_pokedex_entry(pokemon_name, version, language):
     return jsonify({"error": "Pokedex entry not found"})
 #POKEDEX END
 
+#MISC DATA START
+@app.route('/pokemon/<string:pokemon_name>/versions', methods=['GET'])
+def get_pokemon_versions(pokemon_name):
+    url = f'https://pokeapi.co/api/v2/pokemon/{pokemon_name}'
+    response = requests.get(url)
+    data = response.json()
+    versions = []
+    for version in data['game_indices']:
+        versions.append(version['version']['name'])
+    return jsonify({"versions": versions})
+
+@app.route('/versions/<string:version_name>/languages', methods=['GET'])
+def get_version_languages(version_name):
+    url = f'https://pokeapi.co/api/v2/version/{version_name}'
+    response = requests.get(url)
+    data = response.json()
+    languages = []
+    for language in data['names']:
+        languages.append(language['language']['name'])
+    return jsonify({"languages": languages})
+#MISC DATA END
+
 if __name__ == '__main__':
     app.run(debug=True)
