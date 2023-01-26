@@ -228,7 +228,7 @@ def calculate_damage(attacker_name, move_name, defender_name, hp_ev, attack_ev, 
         attack_stat = special_attack
         defense_stat = special_defense
     else:
-        return jsonify({"error": "Invalid})
+        return jsonify({"error": "Invalid"})
 
     # Get type effectiveness
     effectiveness = 1
