@@ -176,6 +176,18 @@ def get_version_languages(version_name):
 #ATTEMPTED DAMAGE CALC
 @app.route('/damage/<string:attacker_name>/<string:move_name>/<string:defender_name>/<int:hp_ev>/<int:attack_ev>/<int:defense_ev>/<int:special_attack_ev>/<int:special_defense_ev>/<int:speed_ev>/<int:hp_iv>/<int:attack_iv>/<int:defense_iv>/<int:special_attack_iv>/<int:special_defense_iv>/<int:speed_iv>', methods=['GET'])
 def calculate_damage(attacker_name, move_name, defender_name, hp_ev, attack_ev, defense_ev, special_attack_ev, special_defense_ev, speed_ev, hp_iv, attack_iv, defense_iv, special_attack_iv, special_defense_iv, speed_iv):
+    # Get typing data
+    types_url = 'https://pokeapi.co/api/v2/type'
+    response = requests.get(types_url) 
+    types_data = response.json()
+    types = {}
+    for type_data in types_data['results']:
+        type_url = type_data['url']
+        response = requests.get(type_url)
+        type_info = response.json()
+        types[type_info['name']] = type_info
+    ###################FIX THE ABOVE######################
+    
     # Get attacker's data
     url = f'https://pokeapi.co/api/v2/pokemon/{attacker_name}'
     response = requests.get(url)
