@@ -260,5 +260,46 @@ def calculate_damage(attacker_name, move_name, defender_name, hp_ev, attack_ev, 
     return jsonify({"damage": damage})
     #DAMAGE CALC END
 
+#LEVEL CALC
+@app.route("/pokemon/level/exp", methods=["GET"])
+@app.route("/level/<string:name>/<int:exp>", methods=["GET"])
+def calculate_level(name, exp):
+    poke_data = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{name}").json()
+    level = 0
+    for level_data in poke_data["growth_rate"]["levels"]:
+        if exp < level_data["experience"]:
+            break
+        level = level_data["level"]
+    return jsonify({"level": level})
+
+@app.route('/exp/<name>/<int:level>', methods=['GET'])
+def exp_required(name, level):
+    poke_data = requests.get(f'https://pokeapi.co/api/v2/pokemon-species/{name}').json()
+    exp_groups = poke_data['growth_rate']['url']
+    exp_data = requests.get(exp_groups).json()
+    exp_to_reach_next_level = exp_data['experience'][level]
+    return jsonify({'EXP required to reach level '+ str(level) : exp_to_reach_next_level})
+#LEVEL CALC END
+
+#EVO DATA
+@app.route("/level/evolve/<name>")
+def evolve(name):
+    # Get the pokemon data from the pokeapi
+    pokemon = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{name}").json()
+    # Get the evolution chain data
+    evolution_chain = requests.get(pokemon["species"]["url"]).json()["evolution_chain"]["url"]
+    evolution_data = requests.get(evolution_chain).json()
+    if evolution_data is not None:
+        # Iterate through the evolution data to find the evolution that matches the current pokemon
+        for evolution in evolution_data["chain"]["evolves_to"]:
+            if evolution["species"]["name"] == name:
+                level = evolution["evolution_details"][0]["min_level"] if "min_level" in evolution["evolution_details"][0] else None
+                item = evolution["evolution_details"][0]["item"] if "item" in evolution["evolution_details"][0] else None
+                return f"{name} can evolve at level {level} with the item {item}."
+        return f"{name} does not have any evolutions."
+    else:
+        return f"{name} does not have any evolutions."
+#EVO DATA END
+    
 if __name__ == '__main__':
     app.run(debug=True)
