@@ -59,6 +59,16 @@ def get_pokemon_special_defense(name):
 
 #BASE STAT END
 
+#TYOING DATA
+@app.route("/types/<name>", methods=["GET"])
+def get_types(name):
+    url = f"https://pokeapi.co/api/v2/pokemon/{name}"
+    response = requests.get(url)
+    data = response.json()
+    types = [t["type"]["name"] for t in data["types"]]
+    return jsonify(types)
+#TYPING DATA END
+
 #COMPOUND STAT FUNCTION ADDITION START
 @app.route('/pokemon/<string:name>/stats/all', methods=['GET'])
 def get_pokemon_all_stats(name):
